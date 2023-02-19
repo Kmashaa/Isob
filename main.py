@@ -1,8 +1,27 @@
 import numpy as np
 
-def encr_Caesar(key, message):
+def gen_alphs():
     alph = 'abcdefghijklmnopqrstuvwxyz'
-    ALPH= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ALPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    return alph, ALPH
+
+def gen_v_squares():
+    alph, ALPH = gen_alphs()
+    v_square = np.empty((26, 26), dtype="str")
+    V_SQUARE = np.empty((26, 26), dtype="str")
+
+    for i in range(0, 26):
+        for j in range(0, 26):
+            v_square[i][j] = alph[np.mod((j + i), 26)]
+
+    for i in range(0, 26):
+        for j in range(0, 26):
+            V_SQUARE[i][j] = ALPH[np.mod((j + i), 26)]
+
+    return v_square, V_SQUARE
+
+def encr_Caesar(key, message):
+    alph,ALPH = gen_alphs()
     res = ''
 
     for x in message:
@@ -17,8 +36,7 @@ def encr_Caesar(key, message):
     return(res)
 
 def decr_Caesar(key, encr_res):
-    alph = 'abcdefghijklmnopqrstuvwxyz'
-    ALPH= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    alph,ALPH = gen_alphs()
     res = ''
     for y in encr_res:
         if y in alph:
@@ -32,18 +50,8 @@ def decr_Caesar(key, encr_res):
     return(res)
 
 def encr_Vigenere(inp_key,message):
-    alph = 'abcdefghijklmnopqrstuvwxyz'
-    ALPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    v_square = np.empty((26, 26), dtype="str")
-    V_SQUARE = np.empty((26, 26), dtype="str")
-
-    for i in range(0, 26):
-        for j in range(0, 26):
-            v_square[i][j] = alph[np.mod((j + i), 26)]
-
-    for i in range(0, 26):
-        for j in range(0, 26):
-            V_SQUARE[i][j] = ALPH[np.mod((j + i), 26)]
+    alph,ALPH = gen_alphs()
+    v_square, V_SQUARE=gen_v_squares()
 
     v_key = ''
 
@@ -62,21 +70,13 @@ def encr_Vigenere(inp_key,message):
                 res += V_SQUARE[alph.find(v_key[i])][ALPH.find(message[i])]
             elif v_key[i] in ALPH:
                 res += V_SQUARE[ALPH.find(v_key[i])][ALPH.find(message[i])]
+        elif (ord(message[i]) < 65 or (ord(message[i])>90 and ord(message[i])<97) or ord(message[i])>122):
+            res += message[i]
     return res
 
 def decr_Vigenere(inp_key,encr_res):
-    alph = 'abcdefghijklmnopqrstuvwxyz'
-    ALPH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    v_square = np.empty((26, 26), dtype="str")
-    V_SQUARE = np.empty((26, 26), dtype="str")
-
-    for i in range(0, 26):
-        for j in range(0, 26):
-            v_square[i][j] = alph[np.mod((j + i), 26)]
-
-    for i in range(0, 26):
-        for j in range(0, 26):
-            V_SQUARE[i][j] = ALPH[np.mod((j + i), 26)]
+    alph,ALPH = gen_alphs()
+    v_square, V_SQUARE=gen_v_squares()
 
     v_key = ''
 
@@ -99,20 +99,40 @@ def decr_Vigenere(inp_key,encr_res):
                 num_str = ALPH.find(v_key[i])
             k = np.where(V_SQUARE[num_str, :] == encr_res[i])[0][0]
             res += ALPH[k]
-
+        elif (ord(encr_res[i]) < 65 or (ord(encr_res[i])>90 and ord(encr_res[i])<97) or ord(encr_res[i])>122):
+            res += encr_res[i]
     return res
+def read_data(file_name):
+    f = open(file_name, 'r')
+    i = 0
+    key = ''
+    message = ''
+    for line in f:
+        if i == 0:
+            key = line
+        elif i == 1:
+            message = line
+        i+=1
+    return key, message
 
 
 if __name__ == '__main__':
-    key=int(input("shift:"))
-    message=input("message:")
-    encr_res=encr_Caesar(key, message)
-    print(encr_res)
-    decr_res=decr_Caesar(key, encr_res)
-    print(decr_res)
 
-    inp_key=input("vigenere key:")
-    enc_v=encr_Vigenere("lemon",message)
-    print(enc_v)
-    dec_v=decr_Vigenere(inp_key,enc_v)
-    print(dec_v)
+    c_key, c_message=read_data('caesar.txt')
+    c_key=int(c_key)
+    v_key, v_message=read_data('vigenere.txt')
+    v_key=v_key[:len(v_key)-1]
+
+    print("original text:",c_message)
+    print("Caesar key:",c_key)
+    encr_c=encr_Caesar(c_key, c_message)
+    decr_c=decr_Caesar(c_key, encr_c)
+    print("encrypted with Caesar cipher:",encr_c)
+    print("decrypted with Caesar cipher:",decr_c,"\n")
+
+    print("original text:",v_message)
+    print("Vigenere key:",v_key)
+    encr_v=encr_Vigenere(v_key,v_message)
+    decr_v=decr_Vigenere(v_key,encr_v)
+    print("encrypted with Vigenere cipher:",encr_v)
+    print("decrypted with Vigenere cipher:",decr_v)
