@@ -110,8 +110,8 @@ def read_data(file_name):
     for line in f:
         if i == 0:
             key = line
-        elif i == 1:
-            message = line
+        elif i >0:
+            message += line
         i+=1
     return key, message
 
@@ -123,15 +123,15 @@ if __name__ == '__main__':
     v_key, v_message=read_data('vigenere.txt')
     v_key=v_key[:len(v_key)-1]
 
-    print("original text:",c_message)
     print("Caesar key:",c_key)
+    print("original text:",c_message)
     encr_c=encr_Caesar(c_key, c_message)
     decr_c=decr_Caesar(c_key, encr_c)
     print("encrypted with Caesar cipher:",encr_c)
     print("decrypted with Caesar cipher:",decr_c,"\n")
 
-    print("original text:",v_message)
     print("Vigenere key:",v_key)
+    print("original text:",v_message)
     encr_v=encr_Vigenere(v_key,v_message)
     decr_v=decr_Vigenere(v_key,encr_v)
     print("encrypted with Vigenere cipher:",encr_v)
